@@ -12,75 +12,87 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\RoleMiddleware;
 
 // =======================
-// Home
+// HOME (GUEST ONLY)
 // =======================
-Route::get('/', function () {
-    if (Auth::check()) {
-        $role = Auth::user()->fresh()->role;
-        return match ($role) {
-            'manager' => redirect()->route('dashboard.manager'),
-            'admin'   => redirect()->route('dashboard.admin'),
-            'user'    => redirect()->route('dashboard.user'),
-            default   => redirect()->route('home'),
-        };
-    }
-    return app(HomeController::class)->index();
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])
+    ->middleware('guest')
+    ->name('home');
 
 // =======================
-// About Page (Public)
+// ABOUT (GUEST ONLY)
 // =======================
-Route::view('/about', 'layouts.about')->name('about');
+Route::view('/about', 'about')
+    ->middleware('guest')
+    ->name('about');
 
 // =======================
-// Guest Routes
+// AUTH (LOGIN & REGISTER)
 // =======================
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
+
     Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register'])->name('register.store');
 });
 
 // =======================
-// Authenticated Routes
+// AUTHENTICATED USERS
 // =======================
 Route::middleware('auth')->group(function () {
+
     // Logout
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+    // Redirect root after login (SAFETY)
+    Route::get('/dashboard', function () {
+        return match (Auth::user()->role) {
+            'manager' => redirect()->route('dashboard.manager'),
+            'admin'   => redirect()->route('dashboard.admin'),
+            'user'    => redirect()->route('dashboard.user'),
+            default   => redirect()->route('home'),
+        };
+    })->name('dashboard');
+
     // Dashboard per role
     Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard'])
-        ->name('dashboard.admin')->middleware(RoleMiddleware::class . ':admin');
+        ->name('dashboard.admin')
+        ->middleware(RoleMiddleware::class . ':admin');
 
     Route::get('/dashboard/manager', [DashboardController::class, 'managerDashboard'])
-        ->name('dashboard.manager')->middleware(RoleMiddleware::class . ':manager');
+        ->name('dashboard.manager')
+        ->middleware(RoleMiddleware::class . ':manager');
 
     Route::get('/dashboard/user', [DashboardController::class, 'userDashboard'])
-        ->name('dashboard.user')->middleware(RoleMiddleware::class . ':user');
+        ->name('dashboard.user')
+        ->middleware(RoleMiddleware::class . ':user');
 
-    // Tickets CRUD
+    // Tickets
     Route::resource('tickets', TicketsController::class)
         ->middleware(RoleMiddleware::class . ':user,admin,manager');
 
-    // Catatan CRUD (admin only)
+    // Catatan (admin only)
     Route::resource('catatan', CatatanController::class)
         ->middleware(RoleMiddleware::class . ':admin');
 
-    // Manager: Kelola Admin (CRUD)
-    Route::middleware(RoleMiddleware::class . ':manager')->prefix('manager')->group(function () {
-        Route::get('/admins', [UserController::class, 'index'])->name('manager.admins');
-        Route::get('/admins/create', [UserController::class, 'create'])->name('manager.admins.create');
-        Route::post('/admins', [UserController::class, 'store'])->name('manager.admins.store');
-        Route::get('/admins/{user}/edit', [UserController::class, 'edit'])->name('manager.admins.edit');
-        Route::put('/admins/{user}', [UserController::class, 'update'])->name('manager.admins.update');
-        Route::delete('/admins/{user}', [UserController::class, 'destroy'])->name('manager.admins.destroy');
-    });
+    // Manager - Kelola Admin
+    Route::middleware(RoleMiddleware::class . ':manager')
+        ->prefix('manager')
+        ->group(function () {
+            Route::resource('admins', UserController::class)->names([
+                'index'   => 'manager.admins',
+                'create'  => 'manager.admins.create',
+                'store'   => 'manager.admins.store',
+                'edit'    => 'manager.admins.edit',
+                'update'  => 'manager.admins.update',
+                'destroy' => 'manager.admins.destroy',
+            ]);
+        });
 });
 
 // =======================
-// Fallback
+// FALLBACK
 // =======================
 Route::fallback(function () {
-    return redirect()->route('home')->with('error', 'Halaman tidak ditemukan.');
+    return redirect()->route('home');
 });

@@ -42,6 +42,6 @@ class RegisterController extends Controller
         Auth::login($user);
 
         // redirect ke home (resources/views/layouts/home.blade.php)
-        return redirect()->route('views.layouts.home')->with('success', 'Registrasi berhasil! Anda sekarang sudah login.');
+        return redirect()->route('views.home')->with('success', 'Registrasi berhasil! Anda sekarang sudah login.');
     }
 }
