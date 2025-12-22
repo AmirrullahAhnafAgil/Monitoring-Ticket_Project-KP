@@ -6,7 +6,7 @@
 <div class="card-custom">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Kelola Admin</h3>
-    <a href="{{ route('manager.admins.create') }}" class="btn-glow">+ Tambah Admin</a>
+    <a href="{{ route('manager.admins.create') }}" class="btn btn-light">Tambah Admin</a>
   </div>
 
   <table class="table table-dark table-striped align-middle">

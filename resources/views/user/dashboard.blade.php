@@ -8,7 +8,7 @@
   <p class="text-muted mb-3">Selamat datang di Sistem Monitoring Tiket. Di sini Anda bisa membuat tiket baru dan memantau progresnya.</p>
 
   <div class="d-flex flex-wrap gap-2">
-    <a href="{{ route('tickets.create') }}" class="btn-glow">Buat Tiket</a>
+    <a href="{{ route('tickets.create') }}" class="btn btn-light">Buat Tiket</a>
     <a href="{{ route('tickets.index') }}" class="btn btn-light">Daftar Tiket Saya</a>
   </div>
 </div>

@@ -8,7 +8,7 @@
   <p class="text-muted mb-3">Kelola tiket dan catatan. Gunakan panel di bawah untuk akses cepat.</p>
 
   <div class="d-flex flex-wrap gap-2">
-    <a href="{{ route('tickets.index') }}" class="btn-glow">Kelola Tiket</a>
+    <a href="{{ route('tickets.index') }}" class="btn btn-light">Kelola Tiket</a>
     <a href="{{ route('catatan.index') }}" class="btn btn-light">Daftar Catatan</a>
   </div>
 </div>

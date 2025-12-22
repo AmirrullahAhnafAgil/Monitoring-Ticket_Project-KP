@@ -7,7 +7,7 @@
   <h3 class="mb-3">Daftar Catatan Admin</h3>
   <p class="text-muted">Berikut adalah catatan yang dibuat Admin untuk menindaklanjuti tiket user.</p>
 
-  <a href="{{ route('catatan.create') }}" class="btn-glow mb-3">+ Tambah Catatan</a>
+  <a href="{{ route('catatan.create') }}" class="btn btn-light">Tambah Catatan</a>
 
   <table class="table table-dark table-striped align-middle">
     <thead>

@@ -8,7 +8,7 @@
   <p class="text-muted mb-3">Pantau ringkasan tiket harian. Gunakan tombol di bawah untuk monitoring cepat.</p>
 
   <div class="d-flex flex-wrap gap-2">
-    <a href="{{ route('tickets.index') }}" class="btn-glow">Lihat Semua Tiket</a>
+    <a href="{{ route('tickets.index') }}" class="btn btn-light">Lihat Semua Tiket</a>
   </div>
 </div>
 

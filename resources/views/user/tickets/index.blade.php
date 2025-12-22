@@ -5,7 +5,7 @@
 @section('content')
 <div class="card-custom mb-4">
   <h3 class="mb-3">Daftar Tiket Saya</h3>
-  <a href="{{ route('tickets.create') }}" class="btn-glow mb-3">+ Buat Tiket Baru</a>
+  <a href="{{ route('tickets.create') }}" class="btn btn-light">Buat Tiket Baru</a>
 
   <table class="table table-dark table-striped">
     <thead>
