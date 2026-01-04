@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Tickets;
 use App\Models\TicketsLogs;
 use Illuminate\Validation\Rule;
+use Barryvdh\DomPDF\Facade\Pdf; // 🔥 TAMBAHAN PDF
 
 class TicketsController extends Controller
 {
@@ -18,7 +19,10 @@ class TicketsController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'user') {
-            $tickets = Tickets::where('user_id', $user->id)->latest()->paginate(12);
+            $tickets = Tickets::where('user_id', $user->id)
+                ->latest()
+                ->paginate(12);
+
             return view('user.tickets.index', compact('tickets'));
         }
 
@@ -67,7 +71,8 @@ class TicketsController extends Controller
             'keterangan' => 'Tiket baru dibuat',
         ]);
 
-        return redirect()->route('tickets.index')->with('success', 'Tiket berhasil dibuat.');
+        return redirect()->route('tickets.index')
+            ->with('success', 'Tiket berhasil dibuat.');
     }
 
     // ========================
@@ -81,9 +86,17 @@ class TicketsController extends Controller
 
         if ($user->role === 'user' && $ticket->user_id !== $user->id) abort(403);
 
-        if ($user->role === 'user') return view('user.tickets.show', compact('ticket'));
-        if ($user->role === 'admin') return view('admin.tickets.show', compact('ticket'));
-        if ($user->role === 'manager') return view('manager.tickets.show', compact('ticket'));
+        if ($user->role === 'user') {
+            return view('user.tickets.show', compact('ticket'));
+        }
+
+        if ($user->role === 'admin') {
+            return view('admin.tickets.show', compact('ticket'));
+        }
+
+        if ($user->role === 'manager') {
+            return view('manager.tickets.show', compact('ticket'));
+        }
 
         abort(403);
     }
@@ -112,7 +125,7 @@ class TicketsController extends Controller
         if ($user->role === 'manager') abort(403);
         if ($user->role === 'user' && $ticket->user_id !== $user->id) abort(403);
 
-        // Jika user: hanya boleh update aktivitas + deskripsi
+        // USER
         if ($user->role === 'user') {
             $request->validate([
                 'aktivitas' => 'required|string|max:255',
@@ -128,13 +141,14 @@ class TicketsController extends Controller
                 'ticket_id'  => $ticket->id,
                 'user_id'    => $user->id,
                 'aksi'       => 'Update Tiket',
-                'keterangan' => 'User memperbarui tiket (aktivitas/deskripsi)'
+                'keterangan' => 'User memperbarui tiket',
             ]);
 
-            return redirect()->route('tickets.index')->with('success', 'Tiket berhasil diperbarui.');
+            return redirect()->route('tickets.index')
+                ->with('success', 'Tiket berhasil diperbarui.');
         }
 
-        // Jika admin: bisa update semua (termasuk status)
+        // ADMIN
         $request->validate([
             'aktivitas' => 'required|string|max:255',
             'deskripsi' => 'required|string',
@@ -149,10 +163,11 @@ class TicketsController extends Controller
             'ticket_id'  => $ticket->id,
             'user_id'    => $user->id,
             'aksi'       => 'Update Tiket',
-            'keterangan' => "Status: {$oldStatus} → {$request->status}"
+            'keterangan' => "Status: {$oldStatus} → {$request->status}",
         ]);
 
-        return redirect()->route('tickets.index')->with('success', 'Tiket berhasil diperbarui.');
+        return redirect()->route('tickets.index')
+            ->with('success', 'Tiket berhasil diperbarui.');
     }
 
     // ========================
@@ -165,16 +180,33 @@ class TicketsController extends Controller
         if ($user->role === 'manager') abort(403);
         if ($user->role === 'user' && $ticket->user_id !== $user->id) abort(403);
 
-        // Tulis log sebelum delete
         TicketsLogs::create([
             'ticket_id'  => $ticket->id,
             'user_id'    => $user->id,
             'aksi'       => 'Hapus Tiket',
-            'keterangan' => 'Tiket dihapus'
+            'keterangan' => 'Tiket dihapus',
         ]);
 
         $ticket->delete();
 
-        return redirect()->route('tickets.index')->with('success', 'Tiket berhasil dihapus.');
+        return redirect()->route('tickets.index')
+            ->with('success', 'Tiket berhasil dihapus.');
+    }
+
+    // ========================
+    // 🔥 EXPORT PDF (MANAGER ONLY)
+    // ========================
+    public function exportPdf()
+    {
+        if (Auth::user()->role !== 'manager') abort(403);
+
+        $tickets = Tickets::with('user')
+            ->latest()
+            ->get();
+
+        $pdf = Pdf::loadView('manager.tickets.pdf', compact('tickets'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('laporan-tiket-manager.pdf');
     }
 }

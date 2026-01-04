@@ -54,7 +54,9 @@ Route::middleware('auth')->group(function () {
         };
     })->name('dashboard');
 
-    // Dashboard per role
+    // =======================
+    // DASHBOARD PER ROLE
+    // =======================
     Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard'])
         ->name('dashboard.admin')
         ->middleware(RoleMiddleware::class . ':admin');
@@ -67,15 +69,28 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard.user')
         ->middleware(RoleMiddleware::class . ':user');
 
-    // Tickets
+    // =======================
+    // TICKETS (SEMUA ROLE)
+    // =======================
     Route::resource('tickets', TicketsController::class)
         ->middleware(RoleMiddleware::class . ':user,admin,manager');
 
-    // Catatan (admin only)
+    // =======================
+    // 🔥 DOWNLOAD PDF (MANAGER ONLY)
+    // =======================
+    Route::get('/manager/tickets/pdf', [TicketsController::class, 'exportPdf'])
+        ->name('manager.tickets.pdf')
+        ->middleware(RoleMiddleware::class . ':manager');
+
+    // =======================
+    // CATATAN (ADMIN ONLY)
+    // =======================
     Route::resource('catatan', CatatanController::class)
         ->middleware(RoleMiddleware::class . ':admin');
 
-    // Manager - Kelola Admin
+    // =======================
+    // MANAGER - KELOLA ADMIN
+    // =======================
     Route::middleware(RoleMiddleware::class . ':manager')
         ->prefix('manager')
         ->group(function () {

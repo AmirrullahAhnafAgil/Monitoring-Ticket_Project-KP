@@ -4,10 +4,20 @@
 
 @section('content')
 <div class="card-custom mb-4">
-  <h3 class="mb-3">Daftar Semua Tiket</h3>
-  <p class="text-muted">
-    Sebagai Manager, Anda bisa memantau seluruh tiket yang dibuat user dan update yang dilakukan Admin.
-  </p>
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <h3 class="mb-1">Daftar Semua Tiket</h3>
+      <p class="text-muted mb-0">
+        Sebagai Manager, Anda bisa memantau seluruh tiket yang dibuat user dan update yang dilakukan Admin.
+      </p>
+    </div>
+
+    {{-- 🔥 TOMBOL DOWNLOAD PDF --}}
+    <a href="{{ route('manager.tickets.pdf') }}"
+       class="btn btn-danger">
+      <i class="fas fa-file-pdf"></i> Download PDF
+    </a>
+  </div>
 
   <table class="table table-dark table-striped align-middle">
     <thead>
@@ -25,10 +35,7 @@
       @forelse($tickets as $i => $t)
         <tr>
           <td>{{ $i + 1 }}</td>
-
-          {{-- 🔥 ID DIGANTI NO_TIKET --}}
           <td>{{ $t->no_tiket }}</td>
-
           <td>{{ $t->aktivitas }}</td>
           <td>{{ optional($t->user)->name ?? '—' }}</td>
           <td>
@@ -41,8 +48,8 @@
           </td>
           <td>{{ $t->created_at->format('d M Y H:i') }}</td>
           <td>
-            {{-- ROUTE TETAP PAKAI ID --}}
-            <a href="{{ route('tickets.show', $t->id) }}" class="btn btn-sm btn-primary">
+            <a href="{{ route('tickets.show', $t->id) }}"
+               class="btn btn-sm btn-primary">
               Detail
             </a>
           </td>
