@@ -3,66 +3,94 @@
 @section('title', 'Dashboard - Admin')
 
 @section('content')
+
 <div class="card-custom mb-4">
   <h3 class="mb-1">Halo, {{ $user->name }} (Admin)</h3>
-  <p class="text-muted mb-3">Kelola tiket dan catatan. Gunakan panel di bawah untuk akses cepat.</p>
+  <p class="text-muted mb-3">
+    Kelola tiket dan pantau progres layanan melalui dashboard admin.
+  </p>
 
   <div class="d-flex flex-wrap gap-2">
-    <a href="{{ route('tickets.index') }}" class="btn btn-light">Kelola Tiket</a>
-    <a href="{{ route('catatan.index') }}" class="btn btn-light">Daftar Catatan</a>
+    <a href="{{ route('tickets.index') }}" class="btn btn-light">
+      Kelola Tiket
+    </a>
+    <a href="{{ route('catatan.index') }}" class="btn btn-light">
+      Daftar Catatan
+    </a>
   </div>
 </div>
 
+{{-- STATISTIK --}}
 <div class="row g-3">
-  <div class="col-md-6">
+  <div class="col-12">
     <div class="card p-3">
-      <h6>Total Tiket</h6>
-      <p class="h2 mb-0">{{ $totalTickets ?? '--' }}</p>
-    </div>
-  </div>
+      <div class="row text-center align-items-center">
 
-  <div class="col-md-6">
-    <div class="card p-3">
-      <h6>Tiket Terbuka</h6>
-      <p class="h2 mb-0 text-warning">{{ $openTickets ?? '--' }}</p>
+        <div class="col-md-6 border-end">
+          <h6 class="mb-1 text-muted">Total Tiket</h6>
+          <p class="h2 mb-0 text-dark">
+            {{ $totalTickets }}
+          </p>
+        </div>
+
+        <div class="col-md-6">
+          <h6 class="mb-1 text-muted">Tiket Terbuka</h6>
+          <p class="h2 mb-0 text-warning">
+            {{ $openTickets }}
+          </p>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
 
-{{-- Recent tickets --}}
+{{-- TIKET TERBARU --}}
 <div class="card mt-4 p-3">
-  <h5>Tiket Terbaru</h5>
-  <table class="table table-dark table-striped mb-0">
-    <thead>
-      <tr>
-        <th>No Tiket</th>
-        <th>Aktivitas</th>
-        <th>Pemohon</th>
-        <th>Status</th>
-        <th>Dibuat</th>
-      </tr>
-    </thead>
-    <tbody>
-      @forelse($recentTickets as $t)
+  <h5 class="mb-3 text-dark">Tiket Terbaru</h5>
+
+  <div class="table-responsive">
+    <table class="table table-dark table-striped mb-0">
+      <thead>
         <tr>
-          <td>{{ $t->no_tiket }}</td>
-          <td><a href="{{ route('tickets.show', $t->id) }}" class="text-white">{{ $t->aktivitas }}</a></td>
-          <td>{{ optional($t->user)->name ?? '—' }}</td>
-          <td>
-            @if($t->status === 'open')
-              <span class="badge bg-warning text-dark">Open</span>
-            @elseif($t->status === 'in_progress')
-              <span class="badge bg-info">In Progress</span>
-            @else
-              <span class="badge bg-success">Closed</span>
-            @endif
-          </td>
-          <td>{{ $t->created_at->format('d M Y') }}</td>
+          <th>No Tiket</th>
+          <th>Aktivitas</th>
+          <th>Pemohon</th>
+          <th>Status</th>
+          <th>Dibuat</th>
         </tr>
-      @empty
-        <tr><td colspan="5" class="text-center">Tidak ada tiket</td></tr>
-      @endforelse
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        @forelse($recentTickets as $t)
+          <tr>
+            <td>{{ $t->no_tiket }}</td>
+            <td>
+              <a href="{{ route('tickets.show', $t->id) }}" class="text-white text-decoration-none">
+                {{ $t->aktivitas }}
+              </a>
+            </td>
+            <td>{{ optional($t->user)->name ?? '—' }}</td>
+            <td>
+              @if($t->status === 'open')
+                <span class="badge bg-warning text-dark">Open</span>
+              @elseif($t->status === 'in_progress')
+                <span class="badge bg-info">In Progress</span>
+              @else
+                <span class="badge bg-success">Closed</span>
+              @endif
+            </td>
+            <td>{{ $t->created_at->format('d M Y') }}</td>
+          </tr>
+        @empty
+          <tr>
+            <td colspan="5" class="text-center text-muted">
+              Tidak ada tiket
+            </td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
 </div>
+
 @endsection
